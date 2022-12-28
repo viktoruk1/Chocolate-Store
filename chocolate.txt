@@ -1,0 +1,51 @@
+#What are the sales details in UK where amount are above 2000 and boxes below 200
+select s.SaleDate, s.Amount, s.Boxes, g.geo country
+from sales s
+join geo g on g.geoid = s.geoid
+Where (s.Amount > 2000 AND s.Boxes < 200) AND g.geo = 'UK'
+order by amount desc;
+
+
+#January 2022 how many shipments did each salesperson make?
+select p.salesperson, count(*) as 'Shipment count'
+from sales s
+join people p on s.spid = p.spid
+where DATE(SaleDate) between '2022-01-01' and '2022-01-31'
+group by p.salesperson;
+
+
+#Which product sold more boxes between milk bar and eclairs?
+select pr.product, sum(s.boxes) as 'Box Total'
+from sales s
+join products pr on s.pid = pr.pid
+where pr.product in ('Milk Bars', 'Eclairs')
+group by pr.product
+order by sum(s.boxes) desc;
+
+
+#What was the total boxes sold per product for the first 10 days of March?
+select pr.product, sum(boxes) as 'Total Boxes'
+from sales s
+join products pr on s.pid = pr.pid
+where DATE(SaleDate) between '2022-03-01' and '2022-03-31'
+group by pr.product
+order by sum(boxes) desc;
+
+
+#shipments had under 100 customers & under 100 boxes? Did any of them occur on Monday?
+select *,
+case when weekday(saledate)=2 then 'Wednesday Shipment'
+else 'NO'
+end as 'W Shipment'
+from sales
+where customers < 100 and boxes < 100;
+
+
+#In the month of february 2022, which salesperson failed to make a sale
+select p.salesperson
+from people p
+where p.spid not in
+(select distinct s.spid from sales s where s.SaleDate between '2022-02-01' and '2022-02-29')
+order by Salesperson;
+
+
